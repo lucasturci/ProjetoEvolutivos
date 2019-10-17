@@ -13,6 +13,7 @@ const int window_height = 800;
 class Circle {
 public:
     const float vel = 5;
+    float radius = 30;
     float x, y;
     bool horizontal;
     int orientation; // 0 = positive 1 = negative
@@ -35,18 +36,18 @@ public:
         if(horizontal) {
             if(orientation == 0) {
                 x += vel;
-                if(x >= window_width) x -= (x - (window_width - 1)); // kickback
+                if(x + radius/2 >= window_width) x -= (x + radius/2 - (window_width - 1)); // kickback
             } else {
                 x -= vel;
-                if(x < 0) x += 0 - x; // kickback
+                if(x - radius/2 < 0) x += 0 - (x - radius/2); // kickback
             }
         } else { // vertical circle
             if(orientation == 0) {
                 y += vel;
-                if(y >= window_height) y -= (y - (window_height - 1)); // kickback
+                if(y + radius/2 >= window_height) y -= (y + radius/2 - (window_height - 1)); // kickback
             }  else {
                 y -= vel;
-                if(y < 0) y += 0 - y;
+                if(y - radius/2 < 0) y += 0 - (y - radius/2);
             }
         }
     }
@@ -105,7 +106,7 @@ public:
     }
 
     void game_logic() {
-
+        
     }
 
     void render() {
