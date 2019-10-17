@@ -3,9 +3,76 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
+#include <vector>
+#include <ctime>
 
 const int window_width = 800;
 const int window_height = 800;
+
+class Circle {
+public:
+    const static float vel = 5;
+    float x, y;
+    bool horizontal;
+    int orientation; // 0 = positive 1 = negative
+
+    Circle() {
+        // init its position
+        horizontal = rand()%2;
+        orientation = rand()%2;
+        x = rand()%window_width;
+        y = rand()%window_height;
+    }
+
+    void setPosition(float x, float y) {
+        this->x = x;
+        this->y = y;
+    }
+
+    void move() {
+        // horizontal circle
+        if(horizontal) {
+            if(orientation == 0) {
+                x += vel;
+                if(x >= window_width) x -= (x - (window_width - 1)); // kickback
+            } else {
+                x -= vel;
+                if(x < 0) x += 0 - x; // kickback
+            }
+        } else { // vertical circle
+            if(orientation == 0) {
+                y += vel;
+                if(y >= window_height) y -= (y - (window_height - 1)); // kickback
+            }  else {
+                y -= vel;
+                if(y < 0) y += 0 - y;
+            }
+        }
+    }
+
+    ~Circle() {
+        // does nothing
+    }
+};
+
+class Game {
+    std::vector<Circle> circles;
+    ALLEGRO_DISPLAY * display;
+
+    void render() {
+
+    }
+};
+
+
+void game_logic() {
+    
+}
+
+void init() {
+    srand(time(NULL));
+
+}
 
 int main() {
 
