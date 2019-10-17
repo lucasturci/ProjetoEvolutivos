@@ -11,3 +11,5 @@ run:
 	@g++ -o $@ -c $<
 clean:
 	rm -rf $(PROGNAME) *.o
+gdb: $(OBJECTS)
+	g++ -o $(PROGNAME) $(OBJECTS) $(LINKS) -g
