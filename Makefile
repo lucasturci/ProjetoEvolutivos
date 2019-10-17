@@ -7,5 +7,7 @@ all: $(OBJECTS)
 	g++ -o $(PROGNAME) $(OBJECTS) $(LINKS) 
 run:
 	@./$(PROGNAME)	
-%.o: %.c
+%.o: %.cpp
 	@g++ -o $@ -c $<
+clean:
+	rm -rf $(PROGNAME) *.o
