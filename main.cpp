@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
+#include <cmath>
 
 const int framerate = 30;
 const int window_width = 800;
@@ -78,10 +79,16 @@ public:
     const float deaccel = .2;
     float x, y;
     float vx, vy;
+    bool collided;
+    int score;
+    int iterations;
+
     Hero() {
         x = window_width/2;
         y = window_height/2; 
         vx = vy = 0;
+        collided = false;
+        iterations = 0;
     }
 
     void setPosition(float x, float y) {
@@ -169,6 +176,15 @@ public:
         game_loop();
     }
 
+    bool colliding(Hero & h) {
+        for(Circle c : circles) {
+            float distance = sqrt((c.x - h.x) * (c.x - h.x) + (c.y - h.y) * (c.y - h.y));
+            if(distance <= c.radius + h.radius) 
+                return true;
+        }
+        return false;
+    }
+
     void game_loop() {
         bool should_render = false;
         int movex, movey;
@@ -220,6 +236,9 @@ public:
             c.move();
         }
 
+        hero.collided = hero.collided or colliding(hero);
+        if(hero.collided == false) hero.iterations++;
+
         hero.applyForce(movex, movey);
         hero.move();
 
@@ -237,7 +256,8 @@ public:
 
         // render hero
         al_draw_circle(hero.x, hero.y, hero.radius, al_map_rgb(0, 0, 0), 5);
-        al_draw_filled_circle(hero.x, hero.y, hero.radius, al_map_rgb(255, 0, 0));
+        if(hero.collided) al_draw_filled_circle(hero.x, hero.y, hero.radius, al_map_rgb(255, 0, 0));
+        else al_draw_filled_circle(hero.x, hero.y, hero.radius, al_map_rgb(0, 255, 0));
         
         al_flip_display();
     }
