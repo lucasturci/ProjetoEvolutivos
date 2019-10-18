@@ -82,6 +82,21 @@ public:
     }
 };
 
+class Coin {
+public:
+    const float radius = 10.0;
+    float x, y;
+
+    Coin() {
+        x = radius + rand()%int(window_width - 2 * radius);
+        y = radius + rand()%int(window_height - 2 * radius);
+    }
+
+    ~Coin() {
+        // does nothing
+    }
+};
+
 class Hero {
 public:
     const float radius = 20.0;
@@ -92,6 +107,7 @@ public:
     bool collided;
     int score;
     int iterations;
+    Coin * coin;
 
     Hero() {
         x = window_width/2;
@@ -99,6 +115,8 @@ public:
         vx = vy = 0;
         collided = false;
         iterations = 0;
+        score = 0;
+        makeCoin();
     }
 
     void setPosition(float x, float y) {
@@ -109,6 +127,11 @@ public:
     void applyForce(int dx, int dy) {
         vx += dx * accel;
         vy += dy * accel;
+    }
+
+    bool gotCoin() {
+        assert(coin);
+        return sqrt((x - coin->x) * (x - coin->x) + (y - coin->y) * (y - coin->y) ) <= radius + coin->radius;
     }
 
     void move() {
@@ -137,10 +160,18 @@ public:
         else vx = std::min(0.0f, vx + deaccel);
         if(vy > 0) vy = std::max(0.0f, vy - deaccel);
         else vy = std::min(0.0f, vy + deaccel);
+
+        iterations++;
+    }
+
+    void makeCoin() {
+        do {
+            coin = new Coin();
+        } while(sqrt((coin->x - x) * (coin->x - x) + (coin->y - y) * (coin->y - y)) < 2 * coin->radius + 2 * radius);
     }
 
     ~Hero() {
-        // does nothing
+        delete coin;
     }
 };
 
@@ -254,6 +285,14 @@ public:
         hero.applyForce(movex, movey);
         hero.move();
 
+        if(hero.gotCoin()) {
+            hero.makeCoin();
+            hero.score++;
+        }
+
+        system("clear");
+        printf("Number of iterations: %d\n", hero.iterations);
+        printf("Score: %d\n", hero.score);
     }
 
     void render() {
@@ -271,6 +310,11 @@ public:
         if(hero.collided) al_draw_filled_circle(hero.x, hero.y, hero.radius, al_map_rgb(255, 0, 0));
         else al_draw_filled_circle(hero.x, hero.y, hero.radius, al_map_rgb(0, 255, 0));
         
+        // render hero's coin
+        al_draw_circle(hero.coin->x, hero.coin->y, hero.coin->radius, al_map_rgb(0, 0, 0), 3);
+        al_draw_filled_circle(hero.coin->x, hero.coin->y, hero.coin->radius, al_map_rgb(255, 255, 0));
+
+        // flip display
         al_flip_display();
     }
 
