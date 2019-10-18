@@ -20,6 +20,8 @@ public:
     float x, y;
     bool horizontal;
     int orientation; // 0 = positive 1 = negative
+    bool active;
+    int iterations_until_active;
 
     Circle() {
         // init its position
@@ -27,6 +29,9 @@ public:
         orientation = rand()%2;
         x = radius + rand()%int(window_width - 2 * radius);
         y = radius + rand()%int(window_height - 2 * radius);
+        active = false;
+        iterations_until_active = 100;
+
     }
 
     void setPosition(float x, float y) {
@@ -64,6 +69,11 @@ public:
                     orientation = 1 - orientation;
                 }
             }
+        }
+
+        iterations_until_active--;
+        if(iterations_until_active == 0) {
+            active = true;
         }
     }
 
@@ -178,6 +188,7 @@ public:
 
     bool colliding(Hero & h) {
         for(Circle c : circles) {
+            if(c.active == false) continue;
             float distance = sqrt((c.x - h.x) * (c.x - h.x) + (c.y - h.y) * (c.y - h.y));
             if(distance <= c.radius + h.radius) 
                 return true;
@@ -205,6 +216,7 @@ public:
             if(event.type == ALLEGRO_EVENT_TIMER and event.timer.source == circle_timer) {
                 Circle c = Circle();
                 circles.push_back(c);
+
             } if(event.type == ALLEGRO_EVENT_KEY_DOWN) {
 
                 if(event.keyboard.keycode == ALLEGRO_KEY_RIGHT) movex++;
@@ -250,8 +262,8 @@ public:
         
         // render circles
         for(Circle c : circles) {
-            al_draw_circle(c.x, c.y, c.radius, al_map_rgb(0, 0, 0), 5);
-            al_draw_filled_circle(c.x, c.y, c.radius, al_map_rgb(0, 0, 255));
+            al_draw_circle(c.x, c.y, c.radius, al_map_rgba(0, 0, 0, c.active? 255 : 20), 5);
+            al_draw_filled_circle(c.x, c.y, c.radius, al_map_rgba(0, 0, 255, c.active? 255 : 20));
         }
 
         // render hero
