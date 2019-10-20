@@ -1,9 +1,10 @@
-#ifndef NEURAL_NETWORK_HPP
-#define NEURAL_NETWORK_HPP
+#ifndef NEURAL_NET_HPP
+#define NEURAL_NET_HPP
 
 #include <vector>
 #include <random>
 #include <cstdlib>
+#include <stdexcept>
 
 using std::vector;
 using std::uniform_real_distribution;
@@ -31,7 +32,7 @@ public:
     }
 
     void randomizeNet() {
-        uniform_real_distribution ur(-1000.0, 1000.0);
+        uniform_real_distribution<double> ur(-1000.0, 1000.0);
         default_random_engine re;
         for(int i = 0; i < M; ++i) {
             for(int j = 0; j < L + 1; ++j) {
