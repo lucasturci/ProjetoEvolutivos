@@ -20,6 +20,35 @@
 #include "Circle.hpp"
 #include "Hero.hpp"
 
+struct vec {
+    double x, y;
+    vec(){}
+    vec(double a, double b): x(a), y(b) {}
+    vec operator + (vec v) const {
+        return vec(x + v.x, y + v.y);
+    }
+    vec operator - (vec v) const {
+        return vec(x - v.x, y - v.y);
+    }
+
+    vec operator * (double a) const {
+        return vec(x * a, y * a);
+    }
+
+    double operator * (vec v) const {
+        return x * v.x + y * v.y;
+    }
+
+
+    double norm() {
+        return sqrt(x * x + y * y);
+    }
+
+    static double dist(vec u, vec v) {
+        return (u - v).norm();
+    }
+};
+
 class Simulator {
 public:
     const int newCircleInterval = 300; // every 10 seconds, if humans play the game with 30fps
@@ -28,6 +57,12 @@ public:
     std::vector<Hero *> population;
     ALLEGRO_DISPLAY * display;
     ALLEGRO_FONT * font;
+
+
+    Simulator(bool render = false){
+        fflush(stdout);
+        shouldRender = render;
+    }
     
     void init() {
 
@@ -64,7 +99,6 @@ public:
     void game_loop() {
         int untilNewCircle = 0;
         while(population.size()) {
-
             untilNewCircle++;
             if(untilNewCircle == newCircleInterval) {
                 Circle c = Circle();
@@ -81,6 +115,13 @@ public:
         }
     }
 
+    // returns if circle centered in c with radius 'radius' intersects with half line segment starting at 'p' with direction vector 'dir'
+    bool line_circle_intersection(vec p, vec dir, vec c, double radius) {
+        vec intersec_point = p + dir * ((c - p) * dir);
+
+        return vec::dist(c, intersec_point) <= radius and (intersec_point - p) * dir > 0;
+    }
+
     void game_logic() {
         for(Circle & c : circles) {
             c.move();
@@ -95,11 +136,60 @@ public:
             }
             h->iterations++;
             
-            // What is missing here is to capture and offer the input of the hero's neural network
-            // Then get the result of the neural network and use it to move the hero
 
-            // h->applyForce(result of neural network)
-            // h->move
+            // calculate distances in the direction of sensors
+            const double pi = acos(-1);
+            const double rate = 2.0 * pi / h->alpha;
+            double angle = 0.0;
+
+            vector<double> dist(h->alpha, 2000);
+
+            const double eps = 1e-5;
+            // calcula distances to walls
+            for(int j = 0; j < h->alpha; ++j) {
+                if(!(pi/2 <= angle and angle <= 3 * pi/2))
+                    if(abs(cos(angle)) > eps) dist[j] = std::min(dist[j], (window_width - h->x)/cos(angle));
+
+                if(0 <= angle and angle <= pi)
+                    if(abs(sin(angle)) > eps) dist[j] = std::min(dist[j], (window_height - h->y)/sin(angle));
+                
+                if(pi/2 <= angle and angle <= 3 * pi/2)
+                    if(abs(cos(angle)) > eps) dist[j] = std::min(dist[j], h->x/-cos(angle));
+                
+                if(pi <= angle and angle <= 2 * pi)
+                    if(abs(sin(angle)) > eps) dist[j] = std::min(dist[j], h->y/-sin(angle));
+
+                angle += rate;
+            }
+
+            angle = 0.0;
+            for(int j = 0; j < h->alpha; ++j) {
+                vec heroPosition = vec(h->x, h->y);
+                vec v = vec(cos(angle), sin(angle)); // unitary vector with 'angle' angle between horizontal axis
+
+                for(Circle c : circles) {
+                    vec center = vec(c.x, c.y); // circle center
+                    if(line_circle_intersection(heroPosition, v, center, c.radius)) {
+                        vec p = heroPosition + v * ((center - heroPosition) * v);
+                        double d = vec::dist(heroPosition, p) - sqrt(c.radius * c.radius - vec::dist(p, center) * vec::dist(p, center));
+                        dist[j] = std::min(dist[j], d);
+                    }
+                }
+                angle += rate;
+            }
+
+            h->distances = dist;
+
+            // for(double x : dist) std::cout << x << ' ';
+            // std::cout << std::endl;
+            
+
+            vector<int> decide = h->decide(dist);  // decide[0] = shouldMoveLeft, decide[1] = shouldMoveRight, decide[2] = shouldMoveUp, decide[3] = shouldMoveDown
+            int dx = -1 * (decide[0] > 0) + 1 * (decide[1] > 0);
+            int dy = -1 * (decide[2] > 0) + 1 * (decide[3] > 0);
+            for(int x : decide) std::cout << x << std::endl;
+            h->applyForce(dx, dy);
+            h->move();
             
             if(h->gotCoin()) {
                 h->makeCoin();
@@ -127,6 +217,15 @@ public:
             // render hero's coin
             al_draw_circle(h->coin->x, h->coin->y, h->coin->radius, al_map_rgb(0, 0, 0), 3);
             al_draw_filled_circle(h->coin->x, h->coin->y, h->coin->radius, al_map_rgb(255, 255, 0));
+
+            const double pi = acos(-1);
+            // render hero's sensor lines
+            for(int i = 0; i < h->alpha; ++i) {
+                vec p = vec(h->x, h->y);
+                vec q = vec(cos(i * (2 * pi/h->alpha)), sin(i * (2 * pi/h->alpha)));
+                vec r = p + q * h->distances[i];
+                al_draw_line(p.x, p.y, r.x, r.y, i < 4? al_map_rgb(255, 0, 0) : al_map_rgb(125, 167, 90), 1);
+            }
         }
         
 

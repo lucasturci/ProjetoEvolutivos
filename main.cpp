@@ -40,22 +40,40 @@ void shutdown_allegro() {
 }
 
 
+void simulateGame(int n = 4) {
+    vector<Hero * > population(n);
+    for(Hero *& h : population) 
+        h = new Hero();
+    
+    Simulator sim(render);
+
+    sim.init();
+    sim.simulate(population);
+}
+
+
 int main(int argc, char * argv[]) {
     srand(time(0));
     if(argc == 1) {
-        printf("Usage: %s evolve | game <flags>\n", argv[0]);
+        printf("Usage: %s evolve | game | simulate <flags>\n", argv[0]);
         return 0;
     }
 
+    if(std::string(argv[1]) == "game") render = true;
     if(render) init_allegro();
     
-    if(std::string(argv[1]) == "evolve") {
-
-    } else {
+    if(std::string(argv[1]) == "simulate") {
+        simulateGame();
+    } else if(std::string(argv[1]) == "game") {
         Game game;
 
         game.init();
         game.begin();
+    } else if(std::string(argv[1]) == "evolve") { 
+
+    } else {
+        printf("Unknown command: %s\n", argv[1]);
+
     }
 
     

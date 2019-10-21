@@ -1,6 +1,7 @@
 #ifndef CIRCLE_HPP
 #define CIRCLE_HPP
 
+#include <cstdlib>
 #include "constants.h"
 
 class Circle {
