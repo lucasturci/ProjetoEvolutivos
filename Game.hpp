@@ -124,7 +124,6 @@ public:
         }
 
         hero.collided = hero.collided or colliding(hero);
-        if(hero.collided == false) hero.iterations++;
 
         hero.applyForce(movex, movey);
         hero.move();
@@ -135,7 +134,7 @@ public:
         }
 
         system("clear");
-        printf("Number of iterations: %d\n", hero.iterations);
+        printf("Number of changes: %d\n", hero.changes);
         printf("Score: %d\n", hero.score);
     }
 

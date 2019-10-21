@@ -51,7 +51,7 @@ struct vec {
 
 class Simulator {
 public:
-    const int newCircleInterval = 300; // every 10 seconds, if humans play the game with 30fps
+    const int newCircleInterval = 60; // every 10 seconds, if humans play the game with 30fps
     bool shouldRender;
     std::vector<Circle> circles;
     std::vector<Hero *> population;
@@ -60,25 +60,32 @@ public:
 
 
     Simulator(bool render = false){
-        fflush(stdout);
         shouldRender = render;
+        display = NULL;
+        font = NULL;
     }
     
     void init() {
-
-        if (al_get_display_option(display, ALLEGRO_SAMPLE_BUFFERS)) {
-            printf("With multisampling, level %d\n", al_get_display_option(display, ALLEGRO_SAMPLES));
-            al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
-            al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
-        }
-        else {
-            printf("Without multisampling.\n");
-        }
-
-        display = al_create_display(window_width, window_height);
-
+        static bool sampled = false;
+        circles.clear();
+        
+        if(!display) display = al_create_display(window_width, window_height);
         // fonts
-        font = al_load_ttf_font("./arial.ttf", 26, 0);
+        if(!font) font = al_load_ttf_font("./arial.ttf", 26, 0);
+
+        if(!sampled) {
+            if (al_get_display_option(display, ALLEGRO_SAMPLE_BUFFERS)) {
+                printf("With multisampling, level %d\n", al_get_display_option(display, ALLEGRO_SAMPLES));
+                al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
+                al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
+            }
+            else {
+                printf("Without multisampling.\n");
+            }
+            sampled = true;
+        }
+
+
     }
 
     bool colliding(Hero * h) {
@@ -102,6 +109,19 @@ public:
             untilNewCircle++;
             if(untilNewCircle == newCircleInterval) {
                 Circle c = Circle();
+                if(circles.size() == 0) {
+                    c.setPosition(window_width - c.radius, window_height/2);
+                    c.horizontal = false;
+                } else if(circles.size() == 1) {
+                    c.setPosition(window_width/2, window_height - c.radius);
+                    c.horizontal = true;
+                } else if(circles.size() == 2) {
+                    c.setPosition(c.radius, window_height/2);
+                    c.horizontal = false;
+                } else if(circles.size() == 3) {
+                    c.setPosition(window_width/2, c.radius);
+                    c.horizontal = true;
+                }
                 circles.push_back(c);
                 untilNewCircle = 0;
             }
@@ -134,8 +154,6 @@ public:
                 i--; // thats why we need to decrement i
                 continue;
             }
-            h->iterations++;
-            
 
             // calculate distances in the direction of sensors
             const double pi = acos(-1);
@@ -187,7 +205,7 @@ public:
             vector<int> decide = h->decide(dist);  // decide[0] = shouldMoveLeft, decide[1] = shouldMoveRight, decide[2] = shouldMoveUp, decide[3] = shouldMoveDown
             int dx = -1 * (decide[0] > 0) + 1 * (decide[1] > 0);
             int dy = -1 * (decide[2] > 0) + 1 * (decide[3] > 0);
-            for(int x : decide) std::cout << x << std::endl;
+            
             h->applyForce(dx, dy);
             h->move();
             

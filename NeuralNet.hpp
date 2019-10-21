@@ -5,6 +5,7 @@
 #include <random>
 #include <cstdlib>
 #include <stdexcept>
+#include <chrono>
 
 using std::vector;
 using std::uniform_real_distribution;
@@ -21,6 +22,8 @@ private:
 public:
     vector<vector<double> > Mh, Mo;
     int L, M, K;
+
+    NeuralNet(){} // default constructor
     // number of neurons in input layer, middle layer and output layer, respectively
     NeuralNet(int L, int M, int K) {
         this->L = L;
@@ -31,20 +34,39 @@ public:
         randomizeNet();
     }
 
+
     void randomizeNet() {
         uniform_real_distribution<double> ur(-1000.0, 1000.0);
-        default_random_engine re;
+        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
         for(int i = 0; i < M; ++i) {
             for(int j = 0; j < L + 1; ++j) {
-                Mh[i][j] = ur(re);
+                Mh[i][j] = ur(rng);
             }
         }
 
         for(int i = 0; i < K; ++i) {
             for(int j = 0; j < M + 1; ++j) {
-                Mo[i][j] = ur(re);
+                Mo[i][j] = ur(rng);
             }
         }
+    }
+
+    void print() {
+        printf("Neural Net:\n");
+        for(int i = 0; i < M; ++i) {
+            for(int j = 0; j < L + 1; ++j) {
+                std::cout << Mh[i][j] << ' ';
+            }
+        }
+        std::cout << std::endl;
+
+        for(int i = 0; i < K; ++i) {
+            for(int j = 0; j < M + 1; ++j) {
+                std::cout << Mo[i][j] << ' ';
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
     }
 
     vector<double> propagate(vector<double> I) {
@@ -71,6 +93,40 @@ public:
         }
 
         return O;
+    }
+
+    static NeuralNet mix(NeuralNet a, NeuralNet b) {
+        NeuralNet ret(a);
+        for(int m = 0; m < ret.M; ++m) {
+            for(int l = 0; l < ret.L + 1; ++l) {
+                ret.Mh[m][l] += b.Mh[m][l];
+                ret.Mh[m][l] /= 2.0;
+            }
+        }
+
+        for(int k = 0; k < ret.K; ++k) {
+            for(int m = 0; m < ret.M + 1; ++m) {
+                ret.Mo[k][m] += b.Mo[k][m];
+                ret.Mo[k][m] /= 2.0;
+            }
+        }
+        return ret;
+    }
+
+    static void crossover(NeuralNet & a, NeuralNet & b) {
+        for(int m = 0; m < a.M; ++m) {
+            for(int l = 0; l < a.L + 1; ++l) {
+                if(rand()%2)
+                    std::swap(a.Mh[m][l], b.Mh[m][l]);
+            }
+        }
+
+        for(int k = 0; k < a.K; ++k) {
+            for(int m = 0; m < a.M + 1; ++m) {
+                if(rand()%2)
+                    std::swap(a.Mo[k][m], b.Mo[k][m]);
+            }
+        }
     }
 
 };

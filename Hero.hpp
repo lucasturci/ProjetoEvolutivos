@@ -18,7 +18,7 @@ public:
     float vx, vy;
     bool collided;
     int score;
-    int iterations;
+    int changes;
     Coin * coin;
     NeuralNet * net;
     vector<double> distances;
@@ -28,12 +28,24 @@ public:
         y = window_height/2; 
         vx = vy = 0;
         collided = false;
-        iterations = 0;
+        changes = 0;
         score = 0;
+        coin = NULL;
         makeCoin();
 
         // Input layer: sensors, distance in x to coin, distance in y to coin, velocity in x and velocity in y
         net = new NeuralNet(alpha + 4, 16, 4);
+    }
+
+    // reset this guy, but keeps the net
+    void clear() {
+        x = window_width/2;
+        y = window_height/2; 
+        vx = vy = 0;
+        collided = false;
+        changes = 0;
+        score = 0;
+        makeCoin();
     }
 
     void setPosition(float x, float y) {
@@ -51,7 +63,8 @@ public:
         I.push_back(coin->y - y); // dy: delta y between coin and hero positions
 
         vector<double> dec = net->propagate(I);
-        for(double & x : dec) x = round(x);
+        for(double & x : dec) 
+            x = round(x);
 
         vector<int> ret(dec.begin(), dec.end());
         return ret;
@@ -94,11 +107,18 @@ public:
         if(vy > 0) vy = std::max(0.0f, vy - deaccel);
         else vy = std::min(0.0f, vy + deaccel);
 
-        iterations++;
+        if(vx or vy) changes++;
+        
+    }
+
+    void setNet(NeuralNet net) {
+        if(this->net) delete this->net;
+        this->net = new NeuralNet(net);
     }
 
     void makeCoin() {
         do {
+            if(coin) delete coin;
             coin = new Coin();
         } while(sqrt((coin->x - x) * (coin->x - x) + (coin->y - y) * (coin->y - y)) < 2 * coin->radius + 2 * radius);
     }
