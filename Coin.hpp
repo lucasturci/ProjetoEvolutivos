@@ -2,6 +2,7 @@
 #define COIN_HPP
 
 #include "constants.h"
+#include "RandomNumber.hpp"
 #include <cstdlib>
 
 class Coin {
@@ -10,8 +11,9 @@ public:
     float x, y;
 
     Coin() {
-        x = radius + rand()%int(window_width - 2 * radius);
-        y = radius + rand()%int(window_height - 2 * radius);
+        RandomNumber * gen = RandomNumber::getGenerator();
+        x = gen->randInt(radius, window_width - radius);
+        y = gen->randInt(radius, window_height - radius);
     }
 
     ~Coin() {

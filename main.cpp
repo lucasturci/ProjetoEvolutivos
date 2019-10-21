@@ -21,6 +21,7 @@
 #include "Hero.hpp"
 #include "Game.hpp"
 #include "Simulator.hpp"
+#include "RandomNumber.hpp"
 
 bool render = true;
 
@@ -41,10 +42,9 @@ void shutdown_allegro() {
 }
 
 void evolve() {
-    std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
-    uniform_real_distribution<double> ur(-1.0, 1.0);
     const int n = 100;
     const int mutation_rate = 0.1;
+    RandomNumber * gen = RandomNumber::getGenerator();
     
     // generate population
     vector<Hero *> population(n);
@@ -110,9 +110,9 @@ void evolve() {
                     addresses.push_back(&h->net->Mo[k][m]);
                 }
             }
-            std::shuffle(addresses.begin(), addresses.end(), rng);
+            std::shuffle(addresses.begin(), addresses.end(), gen->get_rng());
             for(int j = 0; j < (int) mutation_rate * addresses.size(); ++j) {
-                *addresses[j] += ur(rng);
+                *addresses[j] += gen->randDouble(-1.0, 1.0);
             }
         }
     }

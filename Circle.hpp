@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include "constants.h"
+#include "RandomNumber.hpp"
 
 class Circle {
 public:
@@ -16,10 +17,12 @@ public:
 
     Circle() {
         // init its position
-        horizontal = rand()%2;
-        orientation = rand()%2;
-        x = radius + rand()%int(window_width - 2 * radius);
-        y = radius + rand()%int(window_height - 2 * radius);
+
+        RandomNumber * gen = RandomNumber::getGenerator();
+        horizontal = gen->randInt(0, 1);
+        orientation = gen->randInt(0, 1);
+        x = gen->randInt(radius, window_width - radius);
+        y = gen->randInt(radius, window_height - radius);
         active = false;
         iterations_until_active = 100;
 

@@ -5,11 +5,8 @@
 #include <random>
 #include <cstdlib>
 #include <stdexcept>
-#include <chrono>
 
 using std::vector;
-using std::uniform_real_distribution;
-using std::default_random_engine;
 
 class NeuralNet {
 
@@ -36,17 +33,16 @@ public:
 
 
     void randomizeNet() {
-        uniform_real_distribution<double> ur(-1000.0, 1000.0);
-        std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+        RandomNumber * gen = RandomNumber::getGenerator();
         for(int i = 0; i < M; ++i) {
             for(int j = 0; j < L + 1; ++j) {
-                Mh[i][j] = ur(rng);
+                Mh[i][j] = gen->randDouble(-1000.0, 1000.0);
             }
         }
 
         for(int i = 0; i < K; ++i) {
             for(int j = 0; j < M + 1; ++j) {
-                Mo[i][j] = ur(rng);
+                Mo[i][j] = gen->randDouble(-1000.0, 1000.0);
             }
         }
     }
@@ -114,16 +110,17 @@ public:
     }
 
     static void crossover(NeuralNet & a, NeuralNet & b) {
+        RandomNumber * gen = RandomNumber::getGenerator();
         for(int m = 0; m < a.M; ++m) {
             for(int l = 0; l < a.L + 1; ++l) {
-                if(rand()%2)
+                if(gen->randInt(0, 1))
                     std::swap(a.Mh[m][l], b.Mh[m][l]);
             }
         }
 
         for(int k = 0; k < a.K; ++k) {
             for(int m = 0; m < a.M + 1; ++m) {
-                if(rand()%2)
+                if(gen->randInt(0, 1))
                     std::swap(a.Mo[k][m], b.Mo[k][m]);
             }
         }
