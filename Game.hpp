@@ -1,6 +1,25 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+// Allegro
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
+#include <allegro5/allegro_primitives.h>
+
+// C++
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <vector>
+#include <ctime>
+#include <cmath>
+#include <string>
+
+#include "constants.h"
+#include "Circle.hpp"
+#include "Hero.hpp"
+
 class Game {
 public:
     std::vector<Circle> circles;
