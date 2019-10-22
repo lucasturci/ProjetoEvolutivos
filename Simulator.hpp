@@ -167,6 +167,7 @@ public:
         for(int i = 0; i < population.size(); ++i) {
             Hero * h = population[i];
             if(colliding(h)) {
+                h->distance_to_coin = sqrt((h->x - h->coin->x) * (h->x - h->coin->x) + (h->y - h->coin->y) * (h->y - h->coin->y));
                 population.erase(population.begin() + i); // erases and shifts left all elements to the right
                 i--; // thats why we need to decrement i
                 continue;

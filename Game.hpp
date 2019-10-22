@@ -132,10 +132,6 @@ public:
             hero.makeCoin();
             hero.score++;
         }
-
-        system("clear");
-        printf("Number of changes: %d\n", hero.changes);
-        printf("Score: %d\n", hero.score);
     }
 
     void render() {

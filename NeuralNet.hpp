@@ -43,7 +43,7 @@ public:
 
         for(int i = 0; i < K; ++i) {
             for(int j = 0; j < M + 1; ++j) {
-                Mo[i][j] = gen->randDouble(-1000.0, 1000.0);
+                Mo[i][j] = gen->randDouble(-100.0, 100.0);
             }
         }
     }
@@ -101,6 +101,19 @@ public:
         for(int k = 0; k < K; ++k) {
             for(int m = 0; m < M + 1; ++m) {
                 file.write((char *) &Mo[k][m], sizeof(Mo[k][m]));
+            }
+        }
+    }
+
+    void readFromFile(std::ifstream & file) {
+        for(int m = 0; m < M; ++m) {
+            for(int l = 0; l < L + 1; ++l) {
+                file.read((char *) &Mh[m][l], sizeof(Mh[m][l]));
+            }
+        }
+        for(int k = 0; k < K; ++k) {
+            for(int m = 0; m < M + 1; ++m) {
+                file.read((char *) &Mo[k][m], sizeof(Mo[k][m]));
             }
         }
     }

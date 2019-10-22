@@ -47,7 +47,7 @@ std::string to_file_path = "";
 std::string from_file_path = "";
 
 void evolve() {
-    const int n = 100;
+    const int n = 1000;
     const int mutation_rate = 0.1;
     RandomNumber * gen = RandomNumber::getGenerator();
 
@@ -55,12 +55,23 @@ void evolve() {
     fd_set rfds;
     struct timeval tv;
 
-    
+    std::ifstream file;
+    if(from_file_path.size()) {
+        file.open(from_file_path, std::ios::in | std::ios::binary);
+        if(!file.is_open()) {
+            printf("Could not open file %s\n", from_file_path.c_str());
+            printf("Evolving with random individuals instead\n");
+        }
+    }
     
     // generate population
     vector<Hero *> population(n);
-    for(Hero *& h : population) 
+    for(Hero *& h : population) {
         h = new Hero();
+        if(from_file_path.size()) { 
+            h->net->readFromFile(file);
+        }
+    }
 
     Simulator sim(render);
 
@@ -75,11 +86,11 @@ void evolve() {
         // sort hero's by fitness
         // fitness is the score of the hero, and ties are decided by the number of changes in positions
         std::sort(population.begin(), population.end(), [](Hero * h1, Hero * h2) {
-            if(h1->score == h2->score) return h1->changes > h2->changes;
+            if(h1->score == h2->score) return h1->distance_to_coin < h2->distance_to_coin;
             return h1->score > h2->score;
         });
 
-        printf("Best individual: score = %d, changes = %d\n", population[0]->score, population[0]->changes);
+        printf("Best individual: score = %d, distance_to_coin = %.3lf\n", population[0]->score, population[0]->distance_to_coin);
 
         if(ret == 1) {
             printf("Terminating evolution\n");
@@ -120,12 +131,12 @@ void evolve() {
             NeuralNet net = NeuralNet::mix(*population[i]->net, *population[i+1]->net);
             population[cur]->setNet(net);
         }
-        for(int i = 0.6 * n; i < 0.8 * n; ++i) {
+        for(int i = 0.6 * n; i < n; ++i) {
             NeuralNet net = NeuralNet::mix(*population[0]->net, *population[i]->net);
             population[i]->setNet(net);
         }
 
-        for(int i = 0.8 * n; i < n; ++i) {
+        for(int i = 0.95 * n; generation%5 == 0 and i < n; ++i) {
             population[i]->net->randomizeNet();
         }
 
@@ -171,10 +182,23 @@ void evolve() {
 }
 
 
-void simulateGame(int n = 4) {
+void simulateGame(int n = 1) {
+    
+    std::ifstream file;
+    if(from_file_path.size()) {
+        file.open(from_file_path, std::ios::in | std::ios::binary);
+        if(!file.is_open()) {
+            printf("Could not open file %s\n", from_file_path.c_str());
+            printf("Simulating with random individuals instead\n");
+        }
+    }
     vector<Hero * > population(n);
-    for(Hero *& h : population) 
+    for(Hero *& h : population) {
         h = new Hero();
+        if(from_file_path.size()) { 
+            h->net->readFromFile(file);
+        }
+    }
     
     Simulator sim(render);
 
@@ -190,6 +214,7 @@ int main(int argc, char * argv[]) {
         return 0;
     }
 
+    int pop_size = 1;
     for(int i = 2; i < argc; ++i) {
         std::string flag = argv[i];
         if(flag.size() >= 2 and flag[0] == '-' and flag[1] == '-') {
@@ -201,6 +226,9 @@ int main(int argc, char * argv[]) {
             if(flag.substr(0, 5) == "from=") {
                 from_file_path = flag.substr(5);
             }
+            if(flag.substr(0, 2) == "n=") {
+                sscanf(flag.substr(2).c_str(), "%d", &pop_size);
+            }
         }
     }
 
@@ -208,7 +236,7 @@ int main(int argc, char * argv[]) {
     if(render) init_allegro();
     
     if(std::string(argv[1]) == "simulate") {
-        simulateGame();
+        simulateGame(pop_size);
     } else if(std::string(argv[1]) == "game") {
         Game game;
 

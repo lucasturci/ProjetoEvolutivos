@@ -10,7 +10,7 @@
 class Hero {
 private:
 public:
-    const int alpha = 8; // number of sensors
+    const int alpha = 16; // number of sensors
     const float radius = 20.0;
     const float accel = .5;
     const float deaccel = .2;
@@ -18,6 +18,7 @@ public:
     float vx, vy;
     bool collided;
     int score;
+    double distance_to_coin;
     int changes;
     Coin * coin;
     NeuralNet * net;
