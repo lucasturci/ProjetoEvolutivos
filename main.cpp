@@ -23,11 +23,9 @@
 #include "Simulator.hpp"
 #include "RandomNumber.hpp"
 
-bool render = true;
+bool render = false;
 
 void init_allegro() {
-    srand(time(0));
-
     al_init(); // first thing you should do
     al_install_keyboard();
     al_init_font_addon();
@@ -54,12 +52,12 @@ void evolve() {
     Simulator sim(render);
 
     printf("Initing evolution, with population size: %d\n", n);
-    printf("Enter 'exit' (without quotes) to stop\n");
+    printf("Close window to stop\n");
     while(1) {
-        // simulate game
         sim.init();
-        sim.simulate(population);
-
+        int ret = sim.simulate(population);
+   
+        if(ret == 1) break;
         // sort hero's by fitness
         // fitness is the score of the hero, and ties are decided by the number of changes in positions
         std::sort(population.begin(), population.end(), [](Hero * h1, Hero * h2) {
@@ -116,6 +114,8 @@ void evolve() {
             }
         }
     }
+
+    for(int i = 0; i < n; ++i) delete population[i];
 }
 
 
@@ -136,6 +136,14 @@ int main(int argc, char * argv[]) {
     if(argc == 1) {
         printf("Usage: %s evolve | game | simulate <flags>\n", argv[0]);
         return 0;
+    }
+
+    for(int i = 2; i < argc; ++i) {
+        std::string flag = argv[i];
+        if(flag.size() >= 2 and flag[0] == '-' and flag[1] == '-') {
+            flag = flag.substr(2);
+            if(flag == "render") render = true;
+        }
     }
 
     if(std::string(argv[1]) == "game") render = true;

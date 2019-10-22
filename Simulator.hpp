@@ -57,6 +57,7 @@ public:
     std::vector<Hero *> population;
     ALLEGRO_DISPLAY * display;
     ALLEGRO_FONT * font;
+    ALLEGRO_EVENT_QUEUE * event_queue;
 
 
     Simulator(bool render = false){
@@ -69,20 +70,26 @@ public:
         static bool sampled = false;
         circles.clear();
         
-        if(!display) display = al_create_display(window_width, window_height);
-        // fonts
-        if(!font) font = al_load_ttf_font("./arial.ttf", 26, 0);
+        if(shouldRender) {
+            if(!display) {
+                display = al_create_display(window_width, window_height);
+                event_queue = al_create_event_queue();
+                al_register_event_source(event_queue, al_get_display_event_source(display));
+            }
+            // fonts
+            if(!font) font = al_load_ttf_font("./arial.ttf", 26, 0);
 
-        if(!sampled) {
-            if (al_get_display_option(display, ALLEGRO_SAMPLE_BUFFERS)) {
-                printf("With multisampling, level %d\n", al_get_display_option(display, ALLEGRO_SAMPLES));
-                al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
-                al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
+            if(!sampled) {
+                if (al_get_display_option(display, ALLEGRO_SAMPLE_BUFFERS)) {
+                    printf("With multisampling, level %d\n", al_get_display_option(display, ALLEGRO_SAMPLES));
+                    al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
+                    al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
+                }
+                else {
+                    printf("Without multisampling.\n");
+                }
+                sampled = true;
             }
-            else {
-                printf("Without multisampling.\n");
-            }
-            sampled = true;
         }
 
 
@@ -98,12 +105,14 @@ public:
         return false;
     }
 
-    void simulate(std::vector<Hero *> population) {
+    // Returns 1 if user closed window, otherwise return 0
+    int simulate(std::vector<Hero *> population) {
         this->population = population;
-        game_loop();
+        return game_loop();
     }
 
-    void game_loop() {
+    // Returns 1 if user closed window, otherwise returns 0
+    int game_loop() {
         int untilNewCircle = 0;
         while(population.size()) {
             untilNewCircle++;
@@ -126,6 +135,13 @@ public:
                 untilNewCircle = 0;
             }
 
+            if(shouldRender) {
+                ALLEGRO_EVENT evt;
+                while(al_get_next_event(event_queue, &evt)) {
+                    if(evt.type == ALLEGRO_EVENT_DISPLAY_CLOSE) return 1;
+                }
+            }
+
             game_logic();
 
             if(shouldRender) {
@@ -133,6 +149,7 @@ public:
                 al_rest(0.0001); // wait a little bit
             } 
         }
+        return 0;
     }
 
     // returns if circle centered in c with radius 'radius' intersects with half line segment starting at 'p' with direction vector 'dir'
@@ -252,8 +269,10 @@ public:
     }
 
     ~Simulator() {
-        al_destroy_font(font);
-        al_destroy_display(display);
+        if(shouldRender) {
+            al_destroy_font(font);
+            al_destroy_display(display);
+        }
     }
 };
 
