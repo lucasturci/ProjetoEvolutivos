@@ -6,6 +6,7 @@
 
 // C++
 #include <iostream>
+#include <fstream>
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
@@ -13,6 +14,9 @@
 #include <cmath>
 #include <string>
 #include <algorithm>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 // Game
 #include "constants.h"
@@ -39,10 +43,19 @@ void shutdown_allegro() {
     al_shutdown_primitives_addon();
 }
 
+std::string to_file_path = "";
+std::string from_file_path = "";
+
 void evolve() {
     const int n = 100;
     const int mutation_rate = 0.1;
     RandomNumber * gen = RandomNumber::getGenerator();
+
+    // select types to check if user pressed Ctrl+D
+    fd_set rfds;
+    struct timeval tv;
+
+    
     
     // generate population
     vector<Hero *> population(n);
@@ -52,18 +65,41 @@ void evolve() {
     Simulator sim(render);
 
     printf("Initing evolution, with population size: %d\n", n);
-    printf("Close window to stop\n");
+    printf("Press Ctrl+D (EOF) to stop\n");
+    int generation = 0;
     while(1) {
+        printf("Simulating generation %d, with %d individuals\n", generation, n);
         sim.init();
         int ret = sim.simulate(population);
    
-        if(ret == 1) break;
         // sort hero's by fitness
         // fitness is the score of the hero, and ties are decided by the number of changes in positions
         std::sort(population.begin(), population.end(), [](Hero * h1, Hero * h2) {
             if(h1->score == h2->score) return h1->changes > h2->changes;
             return h1->score > h2->score;
         });
+
+        printf("Best individual: score = %d, changes = %d\n", population[0]->score, population[0]->changes);
+
+        if(ret == 1) {
+            printf("Terminating evolution\n");
+            break;
+        }
+
+        tv.tv_sec = 0, tv.tv_usec = 1;
+        FD_ZERO(&rfds);
+        FD_SET(0, &rfds);
+        int aux = select(1, &rfds, NULL, NULL, &tv);
+        if(aux == -1) {
+            perror("select()");
+        } else if(aux) {
+            int x = fgetc(stdin);
+            if(x == EOF) {
+                printf("Terminating evolution\n");
+                break;
+            }
+        }
+
 
         // Primeiros 40% fazem crossover -> gera 40%
         // Proximos 40% fazem cria dois a dois -> gera 20%
@@ -113,6 +149,22 @@ void evolve() {
                 *addresses[j] += gen->randDouble(-1.0, 1.0);
             }
         }
+        generation++;
+    }
+
+    if(to_file_path.size()) {
+        printf("Saving to file\n");
+        std::ofstream file;
+        file.open(to_file_path, std::ios::out | std::ios::binary | std::ios::trunc);
+
+        if(file.is_open()) {
+            for(int i = 0; i < n; ++i) {
+                population[i]->net->writeToFile(file);
+            }
+            file.close();
+        } else {
+            printf("Could not open file with path: %s\n", to_file_path.c_str());
+        }
     }
 
     for(int i = 0; i < n; ++i) delete population[i];
@@ -143,6 +195,12 @@ int main(int argc, char * argv[]) {
         if(flag.size() >= 2 and flag[0] == '-' and flag[1] == '-') {
             flag = flag.substr(2);
             if(flag == "render") render = true;
+            if(flag.substr(0, 3) == "to=") {
+                to_file_path = flag.substr(3);
+            }
+            if(flag.substr(0, 5) == "from=") {
+                from_file_path = flag.substr(5);
+            }
         }
     }
 

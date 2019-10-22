@@ -51,7 +51,7 @@ struct vec {
 
 class Simulator {
 public:
-    const int newCircleInterval = 60; // every 2 seconds, if humans play the game with 30fps
+    const int newCircleInterval = 210; // every 7 seconds, if humans play the game with 30fps
     bool shouldRender;
     std::vector<Circle> circles;
     std::vector<Hero *> population;
