@@ -46,6 +46,14 @@ void shutdown_allegro() {
 std::string to_file_path = "";
 std::string from_file_path = "";
 
+Hero * selectParent(vector<Hero * > population) {
+    RandomNumber * gen = RandomNumber::getGenerator();
+    int n = population.size();
+    int m = gen->randInt(1, n);
+    int x = gen->randInt(0, m-1);
+    return population[x];
+}
+
 void evolve(int n = 1000) {
     const int mutation_rate = 0.1;
     RandomNumber * gen = RandomNumber::getGenerator();
@@ -74,6 +82,7 @@ void evolve(int n = 1000) {
 
     Simulator sim(render);
 
+    std::pair<double, double> lastScore = {-1, -1};
     printf("Initing evolution, with population size: %d\n", n);
     printf("Press Ctrl+D (EOF) to stop\n");
     int generation = 0;
@@ -88,6 +97,8 @@ void evolve(int n = 1000) {
             if(h1->score == h2->score) return h1->distance_to_coin < h2->distance_to_coin;
             return h1->score > h2->score;
         });
+
+        std::pair<double, double> score = {population[0]->score, population[0]->distance_to_coin};
 
         printf("Best individual: score = %d, distance_to_coin = %.3lf\n", population[0]->score, population[0]->distance_to_coin);
 
@@ -119,26 +130,33 @@ void evolve(int n = 1000) {
             population[i]->clear();
         }
 
-        // Crossover nos primeiros 40%
-        for(int i = 1; i < 0.4 * n; i += 2) {
-            NeuralNet::crossover( *population[i]->net, *population[i+1]->net);
+        vector<Hero * > vec(population.begin(), population.end());
+        std::cout << 1 << std::endl;
+        // Pega um cara bom e cria um igual
+        for(int i = 1; i < 0.4 * n; i++) {
+            population[i]->setNet(*selectParent(vec)->net);
         }
 
-        // Cria dois a dois nos proximos 20%
-        for(int i = 0.4 * n, cur = 0.4 * n; i < 0.8 * n; i += 2, cur++) {
+        std::cout << 2 << std::endl;
+        // Cria dois a dois nos proximos 30%
+        for(int i = 0.4 * n, cur = 0.4 * n; i + 1 < n; i += 2, cur++) {
             NeuralNet net = NeuralNet::mix(*population[i]->net, *population[i+1]->net);
             population[cur]->setNet(net);
         }
 
-        for(int i = 0.6 * n; i < n; ++i) {
+        std::cout << 3 << std::endl;
+        // mixa com o best
+        for(int i = 0.7 * n; i < n; ++i) {
             NeuralNet net = NeuralNet::mix(*population[0]->net, *population[i]->net);
             population[i]->setNet(net);
         }
 
-        for(int i = 0.95 * n; generation%5 == 0 and i < n; ++i) {
+        std::cout << 4 << std::endl;
+        for(int i = 0.25 * n; lastScore == score and generation%5 == 0 and i < n; ++i) {
             population[i]->net->randomizeNet();
         }
 
+        std::cout << 5 << std::endl;
         // mutate
         for(int i = 1; i < n; ++i) {
             Hero * h = population[i];
@@ -156,9 +174,11 @@ void evolve(int n = 1000) {
             }
             std::shuffle(addresses.begin(), addresses.end(), gen->get_rng());
             for(int j = 0; j < (int) mutation_rate * addresses.size(); ++j) {
-                *addresses[j] += gen->randDouble(-1.0, 1.0);
+                *addresses[j] += gen->randDouble(-20.0, 20.0);
             }
         }
+
+        lastScore = score;
         generation++;
     }
 
