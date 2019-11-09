@@ -16,6 +16,10 @@ public:
         rng = mt19937(std::chrono::steady_clock::now().time_since_epoch().count());
     }
 
+    RandomNumber(int seed) {
+        rng = mt19937(seed);
+    }
+
     mt19937 get_rng() {
         return rng;
     }

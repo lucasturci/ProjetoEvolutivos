@@ -69,6 +69,7 @@ public:
     void init() {
         static bool sampled = false;
         circles.clear();
+        Circle::setGenerator();
         
         if(shouldRender) {
             if(!display) {

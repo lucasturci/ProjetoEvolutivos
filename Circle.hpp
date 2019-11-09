@@ -5,8 +5,10 @@
 #include "constants.h"
 #include "RandomNumber.hpp"
 
+
 class Circle {
 public:
+    static const int seed = 205;
     const float vel = 5;
     float radius = 20;
     float x, y;
@@ -14,18 +16,23 @@ public:
     int orientation; // 0 = positive 1 = negative
     bool active;
     int iterations_until_active;
-
+    static RandomNumber * gen;
     Circle() {
         // init its position
 
-        RandomNumber * gen = RandomNumber::getGenerator();
+        if(gen == NULL) gen = RandomNumber::getGenerator();
         horizontal = gen->randInt(0, 1);
         orientation = gen->randInt(0, 1);
         x = gen->randInt(radius, window_width - radius);
         y = gen->randInt(radius, window_height - radius);
+
         active = false;
         iterations_until_active = 100;
 
+    }
+
+    static void setGenerator() {
+        gen = new RandomNumber(seed);
     }
 
     void setPosition(float x, float y) {
@@ -75,5 +82,7 @@ public:
         // does nothing
     }
 };
+
+RandomNumber * Circle::gen = NULL;
 
 #endif

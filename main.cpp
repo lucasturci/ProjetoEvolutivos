@@ -46,8 +46,7 @@ void shutdown_allegro() {
 std::string to_file_path = "";
 std::string from_file_path = "";
 
-void evolve() {
-    const int n = 1000;
+void evolve(int n = 1000) {
     const int mutation_rate = 0.1;
     RandomNumber * gen = RandomNumber::getGenerator();
 
@@ -111,7 +110,6 @@ void evolve() {
             }
         }
 
-
         // Primeiros 40% fazem crossover -> gera 40%
         // Proximos 40% fazem cria dois a dois -> gera 20%
         // MVP faz cria com outros 20 % -> gera 20%
@@ -131,6 +129,7 @@ void evolve() {
             NeuralNet net = NeuralNet::mix(*population[i]->net, *population[i+1]->net);
             population[cur]->setNet(net);
         }
+
         for(int i = 0.6 * n; i < n; ++i) {
             NeuralNet net = NeuralNet::mix(*population[0]->net, *population[i]->net);
             population[i]->setNet(net);
@@ -214,7 +213,7 @@ int main(int argc, char * argv[]) {
         return 0;
     }
 
-    int pop_size = 1;
+    int pop_size = -1;
     for(int i = 2; i < argc; ++i) {
         std::string flag = argv[i];
         if(flag.size() >= 2 and flag[0] == '-' and flag[1] == '-') {
@@ -236,14 +235,15 @@ int main(int argc, char * argv[]) {
     if(render) init_allegro();
     
     if(std::string(argv[1]) == "simulate") {
-        simulateGame(pop_size);
+        simulateGame(pop_size < 0? 1 : pop_size);
     } else if(std::string(argv[1]) == "game") {
         Game game;
 
         game.init();
         game.begin();
     } else if(std::string(argv[1]) == "evolve") { 
-        evolve();
+        if(pop_size > 0) evolve(pop_size);
+        else evolve();
     } else {
         printf("Unknown command: %s\n", argv[1]);
 

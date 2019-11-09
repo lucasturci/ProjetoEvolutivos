@@ -23,6 +23,8 @@ public:
     Coin * coin;
     NeuralNet * net;
     vector<double> distances;
+    const int seed = 302;
+    RandomNumber * gen;
 
     Hero() {
         x = window_width/2;
@@ -32,6 +34,7 @@ public:
         changes = 0;
         score = 0;
         coin = NULL;
+        gen = new RandomNumber(seed);
         makeCoin();
 
         // Input layer: sensors, distance in x to coin, distance in y to coin, velocity in x and velocity in y
@@ -46,6 +49,7 @@ public:
         collided = false;
         changes = 0;
         score = 0;
+        gen = new RandomNumber(seed);
         makeCoin();
     }
 
@@ -118,10 +122,8 @@ public:
     }
 
     void makeCoin() {
-        do {
-            if(coin) delete coin;
-            coin = new Coin();
-        } while(sqrt((coin->x - x) * (coin->x - x) + (coin->y - y) * (coin->y - y)) < 2 * coin->radius + 2 * radius);
+        if(coin) delete coin;
+        coin = new Coin(gen->randInt(Coin::radius, window_width - Coin::radius), gen->randInt(Coin::radius, window_height - Coin::radius));
     }
 
     ~Hero() {
