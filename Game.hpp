@@ -32,6 +32,8 @@ public:
     
     void init() {
 
+        display = al_create_display(window_width, window_height);
+        
         if (al_get_display_option(display, ALLEGRO_SAMPLE_BUFFERS)) {
             printf("With multisampling, level %d\n", al_get_display_option(display, ALLEGRO_SAMPLES));
             al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_REQUIRE);
@@ -41,7 +43,6 @@ public:
             printf("Without multisampling.\n");
         }
 
-        display = al_create_display(window_width, window_height);
         game_loop_timer = al_create_timer(1.0/framerate); // 30fps
         circle_timer = al_create_timer(2.0);
         event_queue = al_create_event_queue();
