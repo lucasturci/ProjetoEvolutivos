@@ -152,7 +152,7 @@ void evolve(int n = 1000) {
         }
 
         std::cout << 4 << std::endl;
-        for(int i = 0.25 * n; lastScore == score and generation%5 == 0 and i < n; ++i) {
+        for(int i = 0.25 * n; lastScore == score and generation%10 == 0 and i < n; ++i) {
             population[i]->net->randomizeNet();
         }
 

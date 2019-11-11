@@ -38,7 +38,7 @@ public:
         makeCoin();
 
         // Input layer: sensors, distance in x to coin, distance in y to coin, velocity in x and velocity in y
-        net = new NeuralNet(alpha + 4, 16, 4);
+        net = new NeuralNet(alpha + 4, 4, 4);
     }
 
     // reset this guy, but keeps the net
