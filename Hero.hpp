@@ -3,7 +3,7 @@
 
 #include "constants.h"
 #include "Coin.hpp"
-#include "NeuralNet.hpp"
+#include "Brain.hpp"
 
 #include <assert.h>
 
@@ -21,7 +21,7 @@ public:
     double distance_to_coin;
     int changes;
     Coin * coin;
-    NeuralNet * net;
+    Brain * brain;
     vector<double> distances;
     const int seed = 302;
     RandomNumber * gen;
@@ -38,10 +38,10 @@ public:
         makeCoin();
 
         // Input layer: sensors, distance in x to coin, distance in y to coin, velocity in x and velocity in y
-        net = new NeuralNet(alpha + 4, 4, 4);
+        brain = new Brain(alpha + 4);
     }
 
-    // reset this guy, but keeps the net
+    // reset this guy, but keeps the brain
     void clear() {
         x = window_width/2;
         y = window_height/2; 
@@ -58,7 +58,7 @@ public:
         this->y = y;
     }
 
-    // use neural network to decido what move to make in this iteration of the game, based on the sensors passed as input
+    // use linear combination to decide what move to make in this iteration of the game, based on the sensors passed as input
     // d is a vector of distances until a ball or a wall. If it is a wall, maybe we can increase it a little bit just to discourage avoiding the walls
     vector<int> decide(vector<double> d) {
         vector<double> I = d;
@@ -67,11 +67,11 @@ public:
         I.push_back(coin->x - x); // dx: delta x between coin and hero positions
         I.push_back(coin->y - y); // dy: delta y between coin and hero positions
 
-        vector<double> dec = net->propagate(I);
-        for(double & x : dec) 
-            x = round(x);
-
-        vector<int> ret(dec.begin(), dec.end());
+        vector<double> dec = brain->calculate(I);
+        vector<int> ret;
+        for(int x : dec) {
+            ret.push_back(x > 0);
+        }
         return ret;
     }
 
@@ -116,9 +116,9 @@ public:
         
     }
 
-    void setNet(NeuralNet net) {
-        if(this->net) delete this->net;
-        this->net = new NeuralNet(net);
+    void setBrain(Brain brain) {
+        if(this->brain) delete this->brain;
+        this->brain = new Brain(brain);
     }
 
     void makeCoin() {
@@ -128,7 +128,7 @@ public:
 
     ~Hero() {
         delete coin;
-        delete net;
+        delete brain;
     }
 };
 

@@ -76,7 +76,7 @@ void evolve(int n = 1000) {
     for(Hero *& h : population) {
         h = new Hero();
         if(from_file_path.size()) { 
-            h->net->readFromFile(file);
+            h->brain->readFromFile(file);
         }
     }
 
@@ -92,7 +92,7 @@ void evolve(int n = 1000) {
         int ret = sim.simulate(population);
    
         // sort hero's by fitness
-        // fitness is the score of the hero, and ties are decided by the number of changes in positions
+        // fitness is the score of the hero, and ties are decided by the distance to coin when it dies
         std::sort(population.begin(), population.end(), [](Hero * h1, Hero * h2) {
             if(h1->score == h2->score) return h1->distance_to_coin < h2->distance_to_coin;
             return h1->score > h2->score;
@@ -121,61 +121,40 @@ void evolve(int n = 1000) {
             }
         }
 
-        // Primeiros 40% fazem crossover -> gera 40%
-        // Proximos 40% fazem cria dois a dois -> gera 20%
-        // MVP faz cria com outros 20 % -> gera 20%
-        // Restantes 20 % sofrem genocidio
+        // Primeiros 40% são copiados
+        // Proximos 60% fazem cria dois a dois -> gera 30%
+        // MVP faz cria com outros 30 % -> gera 30%
 
         for(int i = 0; i < n; ++i) {
             population[i]->clear();
         }
 
         vector<Hero * > vec(population.begin(), population.end());
-        std::cout << 1 << std::endl;
+
         // Pega um cara bom e cria um igual
         for(int i = 1; i < 0.4 * n; i++) {
-            population[i]->setNet(*selectParent(vec)->net);
+            population[i]->setBrain(*selectParent(vec)->brain);
         }
 
-        std::cout << 2 << std::endl;
         // Cria dois a dois nos proximos 30%
         for(int i = 0.4 * n, cur = 0.4 * n; i + 1 < n; i += 2, cur++) {
-            NeuralNet net = NeuralNet::mix(*population[i]->net, *population[i+1]->net);
-            population[cur]->setNet(net);
+            Brain brain = Brain::mix(*population[i]->brain, *population[i+1]->brain);
+            population[cur]->setBrain(brain);
         }
 
-        std::cout << 3 << std::endl;
         // mixa com o best
         for(int i = 0.7 * n; i < n; ++i) {
-            NeuralNet net = NeuralNet::mix(*population[0]->net, *population[i]->net);
-            population[i]->setNet(net);
+            Brain brain = Brain::mix(*population[0]->brain, *population[i]->brain);
+            population[i]->setBrain(brain);
         }
 
-        std::cout << 4 << std::endl;
         for(int i = 0.25 * n; lastScore == score and generation%10 == 0 and i < n; ++i) {
-            population[i]->net->randomizeNet();
+            population[i]->brain->randomize();
         }
 
-        std::cout << 5 << std::endl;
         // mutate
         for(int i = 1; i < n; ++i) {
-            Hero * h = population[i];
-            vector<double *> addresses;
-            for(int m = 0; m < h->net->M; ++m) {
-                for(int l = 0; l < h->net->L + 1; l++) {
-                    addresses.push_back(&h->net->Mh[m][l]);
-                }
-            }
-
-            for(int k = 0; k < h->net->K; ++k) {
-                for(int m = 0; m < h->net->M; ++m) {
-                    addresses.push_back(&h->net->Mo[k][m]);
-                }
-            }
-            std::shuffle(addresses.begin(), addresses.end(), gen->get_rng());
-            for(int j = 0; j < (int) mutation_rate * addresses.size(); ++j) {
-                *addresses[j] += gen->randDouble(-20.0, 20.0);
-            }
+            population[i]->brain->mutate(mutation_rate);
         }
 
         lastScore = score;
@@ -189,7 +168,7 @@ void evolve(int n = 1000) {
 
         if(file.is_open()) {
             for(int i = 0; i < n; ++i) {
-                population[i]->net->writeToFile(file);
+                population[i]->brain->writeToFile(file);
             }
             file.close();
         } else {
@@ -215,7 +194,7 @@ void simulateGame(int n = 1) {
     for(Hero *& h : population) {
         h = new Hero();
         if(from_file_path.size()) { 
-            h->net->readFromFile(file);
+            h->brain->readFromFile(file);
         }
     }
     
