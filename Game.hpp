@@ -137,7 +137,10 @@ public:
 
     void render() {
         al_clear_to_color(al_map_rgb(255, 255, 255));
-        //al_draw_text(font, al_map_rgb(0, 0, 0), window_width/2, window_height/2, ALLEGRO_ALIGN_CENTER, "Hello world!");
+        
+        char score_string[67];
+        sprintf(score_string, "%d", hero.score);
+        al_draw_text(font, al_map_rgb(0, 0, 0), window_width/2, 40, ALLEGRO_ALIGN_CENTER, score_string);
         
         // render circles
         for(Circle c : circles) {
