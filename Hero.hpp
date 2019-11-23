@@ -19,6 +19,7 @@ public:
     bool collided;
     int score;
     double distance_to_coin;
+    double distance_to_circle;
     int changes;
     Coin * coin;
     Brain * brain;
@@ -34,6 +35,8 @@ public:
         changes = 0;
         score = 0;
         coin = NULL;
+        distance_to_circle = 1000.0;
+
         gen = new RandomNumber(seed);
         makeCoin();
 
@@ -50,6 +53,7 @@ public:
         changes = 0;
         score = 0;
         gen = new RandomNumber(seed);
+        distance_to_circle = 1000.0;
         makeCoin();
     }
 
@@ -124,6 +128,10 @@ public:
     void makeCoin() {
         if(coin) delete coin;
         coin = new Coin(gen->randInt(Coin::radius, window_width - Coin::radius), gen->randInt(Coin::radius, window_height - Coin::radius));
+    }
+
+    double fitness() {
+        return 100000.0 * score + 10 * distance_to_circle - distance_to_coin;
     }
 
     ~Hero() {

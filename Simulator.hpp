@@ -99,7 +99,8 @@ public:
     bool colliding(Hero * h) {
         for(Circle c : circles) {
             if(c.active == false) continue;
-            float distance = sqrt((c.x - h->x) * (c.x - h->x) + (c.y - h->y) * (c.y - h->y));
+            double distance = sqrt((c.x - h->x) * (c.x - h->x) + (c.y - h->y) * (c.y - h->y));
+            h->distance_to_circle = std::min(h->distance_to_circle, distance);
             if(distance <= c.radius + h->radius) 
                 return true;
         }

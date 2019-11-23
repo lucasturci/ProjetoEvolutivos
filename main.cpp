@@ -82,7 +82,7 @@ void evolve(int n = 100) {
 
     Simulator sim(render);
 
-    std::pair<double, double> lastScore = {-1, -1};
+    double lastScore = -10000;
     printf("Initing evolution, with population size: %d\n", n);
     printf("Press Ctrl+D (EOF) to stop\n");
     int generation = 0;
@@ -96,14 +96,12 @@ void evolve(int n = 100) {
         // sort hero's by fitness
         // fitness is the score of the hero, and ties are decided by the distance to coin when it dies
         std::sort(population.begin(), population.end(), [](Hero * h1, Hero * h2) {
-            if(h1->score == h2->score) return h1->distance_to_coin < h2->distance_to_coin;
-            return h1->score > h2->score;
+            return h1->fitness() > h2->fitness();
         });
 
-        std::pair<double, double> score = {population[0]->score, population[0]->distance_to_coin};
+        double score = population[0]->fitness();
 
-        printf("Best individual: score = %d, distance_to_coin = %.3lf\n", population[0]->score * 1000, population[0]->distance_to_coin);
-        printf("%lf\n", (population[0]->score + 1) * 1000 - population[0]->distance_to_coin);
+        printf("Best individual: score = %d, distance_to_coin = %.3lf, distance_to_circle = %.3lf\n", population[0]->score, population[0]->distance_to_coin, population[0]->distance_to_circle);
         if(ret == 1) {
             printf("Terminating evolution\n");
             break;
