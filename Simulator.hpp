@@ -222,8 +222,8 @@ public:
             
 
             vector<int> decide = h->decide(dist);  // decide[0] = shouldMoveLeft, decide[1] = shouldMoveRight, decide[2] = shouldMoveUp, decide[3] = shouldMoveDown
-            int dx = -1 * (decide[0] > 0) + 1 * (decide[1] > 0);
-            int dy = -1 * (decide[2] > 0) + 1 * (decide[3] > 0);
+            int dx = -1 * decide[0] + 1 * decide[1];
+            int dy = -1 * decide[2] + 1 * decide[3];
             
             h->applyForce(dx, dy);
             h->move();

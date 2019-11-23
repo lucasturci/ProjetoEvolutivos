@@ -21,8 +21,9 @@ public:
     
     // N: number of parameters in input
     // number of parameters in output is 4
-    Brain(int I) {
-        mat = vector<vector<double> > (4, vector<double> (I));
+    Brain(int N) {
+        mat = vector<vector<double> > (4, vector<double> (N));
+        this->N = N;
         randomize();            
     }
 
@@ -30,12 +31,10 @@ public:
         RandomNumber * gen = RandomNumber::getGenerator();
         for(int i = 0; i < 4; ++i) {
             for(int j = 0; j < N; ++j) {
-                mat[i][j] = gen->randDouble(-100000.0, 100000.0);
+                mat[i][j] = gen->randDouble(-1000.0, 1000.0);
             }
         }
     }
-
-
 
     void print() {
         for(int i = 0; i < 4; ++i) {
@@ -54,7 +53,7 @@ public:
         for(int i = 0; i < 4; ++i) {
             ans[i] = 0.0;
             for(int j = 0; j < N; ++j) {
-                ans[i] += mat[i][j] * I[i];
+                ans[i] += mat[i][j] * I[j];
             }
         }
         return ans;
@@ -64,7 +63,7 @@ public:
         RandomNumber * gen = RandomNumber::getGenerator();
         for(int i = 0; i < 4; ++i) {
             for(int j = 0; j < N; ++j) {
-                if(gen->randDouble(0, 1) > mutation_rate) mat[i][j] += gen->randDouble(-100.0, 100.0);
+                if(gen->randDouble(0.0, 1.0) > mutation_rate) mat[i][j] += gen->randDouble(-100.0, 100.0);
             }
         }
     }

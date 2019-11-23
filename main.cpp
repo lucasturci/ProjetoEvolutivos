@@ -54,8 +54,8 @@ Hero * selectParent(vector<Hero * > population) {
     return population[x];
 }
 
-void evolve(int n = 1000) {
-    const int mutation_rate = 0.1;
+void evolve(int n = 100) {
+    const int mutation_rate = 0.5;
     RandomNumber * gen = RandomNumber::getGenerator();
 
     // select types to check if user pressed Ctrl+D
@@ -90,6 +90,8 @@ void evolve(int n = 1000) {
         printf("Simulating generation %d, with %d individuals\n", generation, n);
         sim.init();
         int ret = sim.simulate(population);
+
+        // numero simoes: 997707506
    
         // sort hero's by fitness
         // fitness is the score of the hero, and ties are decided by the distance to coin when it dies
@@ -100,8 +102,8 @@ void evolve(int n = 1000) {
 
         std::pair<double, double> score = {population[0]->score, population[0]->distance_to_coin};
 
-        printf("Best individual: score = %d, distance_to_coin = %.3lf\n", population[0]->score, population[0]->distance_to_coin);
-
+        printf("Best individual: score = %d, distance_to_coin = %.3lf\n", population[0]->score * 1000, population[0]->distance_to_coin);
+        printf("%lf\n", (population[0]->score + 1) * 1000 - population[0]->distance_to_coin);
         if(ret == 1) {
             printf("Terminating evolution\n");
             break;
