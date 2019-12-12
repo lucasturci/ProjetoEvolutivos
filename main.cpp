@@ -151,8 +151,12 @@ void evolve(int n = 100) {
 
         if(lastScore == score) {
             countStuck++;
-            mutation_rate *= 1.5;
+            mutation_rate *= 1.8;
+        } else {
+            countStuck = 0;
+            mutation_rate = 0.5;
         }
+
         if(countStuck == 15) {
             for(int i = 0.10 * n; i < n; ++i) {
                 population[i]->brain->randomize();
