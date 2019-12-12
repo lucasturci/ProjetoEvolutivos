@@ -63,7 +63,7 @@ public:
         RandomNumber * gen = RandomNumber::getGenerator();
         for(int i = 0; i < 4; ++i) {
             for(int j = 0; j < N; ++j) {
-                if(gen->randDouble(0.0, 1.0) > mutation_rate) mat[i][j] += gen->randDouble(-100.0, 100.0);
+                if(gen->randInt(0, 1)) mat[i][j] += gen->randDouble(-mutation_rate, mutation_rate);
             }
         }
     }

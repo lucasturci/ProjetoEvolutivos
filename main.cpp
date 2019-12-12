@@ -55,7 +55,8 @@ Hero * selectParent(vector<Hero * > population) {
 }
 
 void evolve(int n = 100) {
-    const int mutation_rate = 0.5;
+    double mutation_rate = 0.5;
+    int countStuck = 0;
     RandomNumber * gen = RandomNumber::getGenerator();
 
     // select types to check if user pressed Ctrl+D
@@ -148,8 +149,16 @@ void evolve(int n = 100) {
             population[i]->setBrain(brain);
         }
 
-        for(int i = 0.25 * n; lastScore == score and generation%10 == 0 and i < n; ++i) {
-            population[i]->brain->randomize();
+        if(lastScore == score) {
+            countStuck++;
+            mutation_rate *= 1.5;
+        }
+        if(countStuck == 15) {
+            for(int i = 0.10 * n; i < n; ++i) {
+                population[i]->brain->randomize();
+            }
+            countStuck = 0;
+            mutation_rate = 0.5;
         }
 
         // mutate
