@@ -14,8 +14,6 @@ public:
     const float radius = 20.0;
     const float accel = .5;
     const float deaccel = .2;
-    const float maxvx = 10;
-    const float maxvy = 10;
     float x, y;
     float vx, vy;
     bool collided;
@@ -84,11 +82,6 @@ public:
     void applyForce(int dx, int dy) {
         vx += dx * accel;
         vy += dy * accel;
-        if(vy > maxvy) vy = maxvy;
-        if(vy < -maxvy) vy = -maxvy;
-
-        if(vx > maxvx) vx = maxvx;
-        if(vx < -maxvx) vx = -maxvx;
     }
 
     bool gotCoin() {
