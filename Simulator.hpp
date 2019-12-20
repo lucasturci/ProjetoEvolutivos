@@ -240,6 +240,11 @@ public:
         al_clear_to_color(al_map_rgb(255, 255, 255));
         //al_draw_text(font, al_map_rgb(0, 0, 0), window_width/2, window_height/2, ALLEGRO_ALIGN_CENTER, "Hello world!");
         
+        // render score 
+        char score_string[67];
+        sprintf(score_string, "%d", population[0]->score);
+        al_draw_text(font, al_map_rgb(0, 0, 0), window_width/2, 40, ALLEGRO_ALIGN_CENTER, score_string);
+
         // render circles
         for(Circle c : circles) {
             al_draw_circle(c.x, c.y, c.radius, al_map_rgba(0, 0, 0, c.active? 255 : 20), 5);
