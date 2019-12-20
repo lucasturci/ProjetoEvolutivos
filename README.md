@@ -2,6 +2,10 @@
 
 O projeto de algoritmos evolutivos implementado é a inteligência artificial do personagem de um jogo. Neste jogo, o personagem é uma bolinha verde que deve coletar bolinhas amarelas para ganhar pontos, desviando dos círculos azuis.
 
+No gif abaixo está o melhor individuo alcançado com o algoritmo genético:
+
+<center> ![GIF da simulacao com o melhor individuo](./hero.gif) </center>
+
 
 ## Instruções de Instalação
 
