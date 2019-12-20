@@ -92,7 +92,6 @@ void evolve(int n = 100) {
         sim.init();
         int ret = sim.simulate(population);
 
-        // numero simoes: 997707506
    
         // sort hero's by fitness
         // fitness is the score of the hero, and ties are decided by the distance to coin when it dies
