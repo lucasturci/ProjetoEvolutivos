@@ -6,6 +6,9 @@ No gif abaixo está o melhor individuo alcançado com o algoritmo genético:
 
 ![GIF da simulacao com o melhor individuo](https://raw.githubusercontent.com/lucasturci/ProjetoEvolutivos/master/hero.gif)
 
+E abaixo um gráfico que mostra uma das evoluções realizadas (Fitness vs. Gerações)
+
+![Grafico da evolucao](https://raw.githubusercontent.com/lucasturci/ProjetoEvolutivos/master/graph.png)
 
 ## Instruções de Instalação
 
