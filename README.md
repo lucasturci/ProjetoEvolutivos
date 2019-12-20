@@ -13,6 +13,11 @@ sudo apt-get update
 sudo apt-get install liballegro5-dev
 ```
 
+Instalar `pkg-config`, necessário para linkar as bibliotecas do Allegro
+```
+sudo apt-get install pkg-config
+```
+
 ## Instruções de compilação e execução
 
 Para instalar, apenas rode o makefile com
