@@ -76,7 +76,7 @@ void evolve(int n = 100) {
     vector<Hero *> population(n);
     for(Hero *& h : population) {
         h = new Hero();
-        if(from_file_path.size()) { 
+        if(file.is_open()) { 
             h->brain->readFromFile(file);
         }
     }
