@@ -46,7 +46,7 @@ public:
     }
 
     vector<double> calculate(vector<double> I) {
-        if(I.size() != N) throw std::runtime_error("Input size is different than brain size is wrong");
+        if(I.size() != N) throw std::runtime_error("ERROR: Input size is different than brain size");
 
         vector<double> ans(4);
 
