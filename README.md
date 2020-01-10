@@ -59,5 +59,7 @@ Para executar, você tem três opções:
 
 ## Desenvolvedores
    Clara Rosa (github.com/claraxsilveira)
+   
    Lucas Turci (github.com/lucasturci)
+   
    Raphael Medeiros Vieira (github.com/rmedeiros23)
