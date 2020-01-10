@@ -56,5 +56,8 @@ Para executar, você tem três opções:
     Isso irá rodar o jogo com o melhor indivíduo dessa evolução. Se você não determinar um arquivo, ele será um indivíduo aleatório.
 
     Caso queira mostrar mais indivíduos da população, adicione a flag `--n=<numero_individuos>`. Exemplo: caso você quiser ver os 10 melhores indivíduos, rode `./main simulate --from=arquivo.in --n=10 --render`.
-    
 
+## Desenvolvedores
+   Clara Rosa (github.com/claraxsilveira)
+   Lucas Turci (github.com/lucasturci)
+   Raphael Medeiros Vieira (github.com/rmedeiros23)
