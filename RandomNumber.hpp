@@ -1,3 +1,10 @@
+/*
+Desenvolvedores:
+    Clara Rosa (github.com/claraxsilveira)
+    Lucas Turci (github.com/lucasturci)
+    Raphael Medeiros Vieira (github.com/rmedeiros23)
+*/
+
 #ifndef RANDOM_NUMBER_HPP
 #define RANDOM_NUMBER_HPP
 
