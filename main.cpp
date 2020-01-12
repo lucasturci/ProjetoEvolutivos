@@ -1,5 +1,5 @@
 /*
-Desenvolvedores:
+Developers:
     Clara Rosa (github.com/claraxsilveira)
     Lucas Turci (github.com/lucasturci)
     Raphael Medeiros Vieira (github.com/rmedeiros23)
