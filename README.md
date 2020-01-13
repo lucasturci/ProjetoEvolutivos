@@ -63,3 +63,7 @@ Para executar, você tem três opções:
    Lucas Turci (github.com/lucasturci)
    
    Raphael Medeiros Vieira (github.com/rmedeiros23)
+ 
+## Vídeo com explicação do projeto
+
+    https://www.youtube.com/watch?v=v2wgTPNYGR0
